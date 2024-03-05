@@ -37,17 +37,24 @@ def recreate_dict(entry: list) -> list:
 
 def get_formations_list() -> list:
     url_mod_list = ["2B_2223", "1A_2324", "2A_2324"]
-    url_base = "https://amway.ensam.eu/json"
+    formation_list = []
     for url_mod in url_mod_list:
-        url_addon = f"/recherche/109%2C415%2C501%2C416%2C401%2C216%2C419%2C237%2C134%2C404%2C100%2C112%2C223%2C127%2C217%2C227%2C350%2C405%2C103%2C502%2C413%2C122%2C116%2C114%2C132%2C104%2C351%2C208/GI%2CENERG%2CMAT%2CAUTRE%2CELEC%2CENV%2CIA%2CINFO%2CGES_MGMT%2CAERO%2CGM%2CMECATRO%2CCIVIL%2CSANTE%2CCONCEP/3A%2C1_SEM%2CMASTER%2CUEE%2CDOUBLE_DIPLOME%2CUEE_CP%2CMASTER_OF_SCIENCE%2CDOUBLE_MASTER/INGENIEUR_6MOIS%2CS7_RI%2CS8_RI%2CRECHERCHE_10SEMAINES/{url_mod}/19%2C10%2C22%2C7%2C26%2C27%2C123%2C14"
-        formation_list = get_response(url_base + url_addon)
+        url = f"https://amway.ensam.eu/json/recherche/109%2C415%2C501%2C416%2C401%2C216%2C419%2C237%2C134%2C404%2C100%2C112%2C223%2C127%2C217%2C227%2C350%2C405%2C103%2C502%2C413%2C122%2C116%2C114%2C132%2C104%2C351%2C208/GI%2CENERG%2CMAT%2CAUTRE%2CELEC%2CENV%2CIA%2CINFO%2CGES_MGMT%2CAERO%2CGM%2CMECATRO%2CCIVIL%2CSANTE%2CCONCEP/3A%2C1_SEM%2CMASTER%2CUEE%2CDOUBLE_DIPLOME%2CUEE_CP%2CMASTER_OF_SCIENCE%2CDOUBLE_MASTER/INGENIEUR_6MOIS%2CS7_RI%2CS8_RI%2CRECHERCHE_10SEMAINES/{url_mod}/19%2C10%2C22%2C7%2C26%2C27%2C123%2C14"
+        formation_list += get_response(url)
     formation_list = recreate_dict(formation_list)
     return formation_list
 
 def get_formations_details(formations_id: list) -> list:
     responses = []
+    compteur = 1
+    compteur_max = len(formations_id)
     for id in formations_id:
-        responses += get_response(f"https://amway.ensam.eu/json/details/{id}/undefined")
+        print(f"{compteur}/{compteur_max} -- {compteur/compteur_max*100}")
+        response = get_response(f"https://amway.ensam.eu/json/details/{id}/undefined")
+        for i in response:
+            i["id_Bloc"] = id
+        responses += response
+        compteur += 1
     new_list = []
     for dico in responses:
         new_dict = {"Procedure_d_affectation": 0,
@@ -85,7 +92,8 @@ def get_formations_details(formations_id: list) -> list:
             "Places_disponible_a_l_etape_2B": 0,
             "Site_web_etablissement_partenaire": 0,
             "Site_web_du_parcours": 0,
-            "Lien_presentations": 0}
+            "Lien_presentations": 0,
+            "id_Bloc": 0}
         
         i = 0
         for value in dico.values():
